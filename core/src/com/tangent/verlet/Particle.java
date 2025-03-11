@@ -9,19 +9,24 @@ public class Particle {
     private float y;
     private float prevX;
     private float prevY;
-    private float accX;
-    private float accY;
-    private int radius;
-    private Color colour;
+    private final int radius;
+    private final Color colour;
 
-    public Particle(float x, float y, int r, Color colour, float accX, float accY) {
+    public Particle(float x, float y, int r, Color colour) {
         this.x = x;
         this.y = y;
         this.prevX = x;
         this.prevY = y;
         this.radius = r;
-        this.accX = accX;
-        this.accY = accY;
+        this.colour = colour;
+    }
+
+    public Particle(float x, float y, float vx, float vy, int r, Color colour) {
+        this.x = x;
+        this.y = y;
+        this.prevX = x - vx;
+        this.prevY = y + vy;
+        this.radius = r;
         this.colour = colour;
     }
 
@@ -35,11 +40,11 @@ public class Particle {
         this.y += y;
     }
 
-    public void update(float dt) {
+    public void update(float gravity, float dt) {
         float tempX = x;
         float tempY = y;
-        x = 2 * x - prevX + accX * dt * dt;
-        y = 2 * y - prevY + accY * dt * dt;
+        x = 2 * x - prevX;
+        y = 2 * y - prevY + gravity * dt * dt;
         prevX = tempX;
         prevY = tempY;
     }
