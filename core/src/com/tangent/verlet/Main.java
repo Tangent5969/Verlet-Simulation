@@ -15,16 +15,17 @@ public class Main extends ApplicationAdapter {
     private ShapeRenderer sr;
     private Camera camera;
     private FitViewport viewport;
-    Simulation sim;
-
+    private SimulationConfig config;
+    private Simulation sim;
 
     @Override
     public void create() {
+        config = new SimulationConfig("config.txt");
         sr = new ShapeRenderer();
         camera = new OrthographicCamera();
-        viewport = new FitViewport(2000, 2000, camera);
+        viewport = new FitViewport(config.getWorldWidth(), config.getWorldHeight(), camera);
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
-        sim = new Simulation(-1000, 0.25f, 8, 1000, 1000, 950, true, 50, 2000, 1.2f);
+        sim = new Simulation(config);
     }
 
     @Override
@@ -35,6 +36,9 @@ public class Main extends ApplicationAdapter {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             sim.toggleSpawner();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            sim.reset();
         }
 
         ScreenUtils.clear(Color.DARK_GRAY);

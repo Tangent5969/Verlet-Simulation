@@ -1,0 +1,31 @@
+# Config file for Verlet Simulation. No Blank Lines.
+# World Width
+1000
+# World Height
+1000
+# Physics Sub-Steps
+8
+# Circle (true / false)
+true
+# Bound Centre X
+500
+# Bound Centre Y
+500
+# Bound Radius
+450
+# Gravity
+-1000
+# Restitution
+0.25
+# Minimum Ball Size
+10
+# Maximum Ball Size
+25
+# Ball Spawn Delay (ms)
+50
+# Ball Spawn Speed
+1000
+# Ball Spawn Angle
+1.2
+# Ball Angle Period
+0.75
