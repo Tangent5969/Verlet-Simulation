@@ -33,12 +33,12 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
+        Vector2 coords = viewport.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
         if (Gdx.input.isButtonJustPressed(0)) {
-            Vector2 coords = viewport.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
             sim.addBall(coords.x, coords.y);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            sim.toggleSpawner();
+            sim.spawner = !sim.spawner;
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             sim.reset();
@@ -48,7 +48,7 @@ public class Main extends ApplicationAdapter {
         viewport.apply();
         sr.setProjectionMatrix(camera.combined);
         sr.begin(ShapeRenderer.ShapeType.Filled);
-        sim.simulate(Gdx.graphics.getDeltaTime());
+        sim.simulate(coords.x, coords.y, Gdx.graphics.getDeltaTime());
         sim.render(sr);
         sr.end();
 

@@ -11,15 +11,9 @@ import java.io.IOException;
 public class SimulationConfig {
     private final float worldWidth;
     private final float worldHeight;
-    private final float boundRadius;
-    private final float boundX;
-    private final float boundY;
-    private final int subSteps;
-    private final boolean circle;
     private final float maxStrength;
     private final float maxSpeed;
     private final int upperSize;
-
     private final float forceStrengthDefault;
     private final float forceXDefault;
     private final float forceYDefault;
@@ -45,16 +39,6 @@ public class SimulationConfig {
             this.worldWidth = Float.parseFloat(reader.readLine());
             reader.readLine();
             this.worldHeight = Float.parseFloat(reader.readLine());
-            reader.readLine();
-            this.subSteps = Integer.parseInt(reader.readLine());
-            reader.readLine();
-            this.circle = Boolean.parseBoolean(reader.readLine());
-            reader.readLine();
-            this.boundX = Float.parseFloat(reader.readLine());
-            reader.readLine();
-            this.boundY = Float.parseFloat(reader.readLine());
-            reader.readLine();
-            this.boundRadius = Float.parseFloat(reader.readLine());
             reader.readLine();
             this.maxStrength = Float.parseFloat(reader.readLine());
             reader.readLine();
@@ -97,26 +81,6 @@ public class SimulationConfig {
 
     public float getWorldHeight() {
         return worldHeight;
-    }
-
-    public float getBoundRadius() {
-        return boundRadius;
-    }
-
-    public float getBoundX() {
-        return boundX;
-    }
-
-    public float getBoundY() {
-        return boundY;
-    }
-
-    public int getSubSteps() {
-        return subSteps;
-    }
-
-    public boolean isCircle() {
-        return circle;
     }
 
     public float getMaxStrength() {

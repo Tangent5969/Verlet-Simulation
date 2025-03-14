@@ -5,10 +5,13 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import imgui.type.ImInt;
 import org.lwjgl.glfw.GLFW;
+
 
 public class Gui {
     private ImGuiImplGlfw imGuiGlfw;
@@ -41,18 +44,37 @@ public class Gui {
             Gdx.input.setInputProcessor(tempProcessor);
             tempProcessor = null;
         }
+
         imGuiGl3.newFrame();
         imGuiGlfw.newFrame();
         ImGui.newFrame();
 
         // do stuff
+        ImGui.setNextWindowPos(ImGui.getMainViewport().getPosX(), ImGui.getMainViewport().getPosY(), ImGuiCond.Once);
+        ImGui.setNextWindowCollapsed(true, ImGuiCond.Once);
         ImGui.begin("Settings");
 
         if (ImGui.collapsingHeader("Debug")) {
             ImGui.text(Gdx.graphics.getFramesPerSecond() + " fps");
             ImGui.text(String.format("%.2f", Gdx.graphics.getDeltaTime() * 1000) + " ms");
             ImGui.text(sim.getSize() + " balls");
-            if (ImGui.smallButton("Reset##1")) sim.reset();
+            ImInt steps = new ImInt(sim.getSubSteps());
+            if (ImGui.inputInt("Sub Steps", steps)) sim.setSubSteps(steps.get());
+            if (ImGui.smallButton("Reset Balls##1")) sim.reset();
+
+        }
+
+
+        if (ImGui.collapsingHeader("World")) {
+            ImInt boundX = new ImInt(sim.getBoundX());
+            ImInt boundY = new ImInt(sim.getBoundY());
+            ImInt radius = new ImInt(sim.getBoundRadius());
+            if (ImGui.inputInt("Centre X", boundX)) sim.setBoundX(boundX.get());
+            if (ImGui.inputInt("Centre Y", boundY)) sim.setBoundY(boundY.get());
+            if (ImGui.inputInt("Radius", radius)) sim.setBoundRadius(radius.get());
+            if (ImGui.smallButton((sim.circle) ? "Circle" : "Square")) sim.circle = !sim.circle;
+            ImGui.sameLine();
+            ImGui.text("World Shape : Circle / Square");
 
         }
 
@@ -68,8 +90,8 @@ public class Gui {
             if (ImGui.checkbox("Active", sim.spawner)) sim.spawner = !sim.spawner;
             ImGui.sliderInt("Spawn Delay", sim.spawnDelay, 10, 1000);
             ImGui.sliderFloat("Spawn Speed", sim.spawnSpeed, 0, sim.getMaxSpeed());
-            ImGui.sliderFloat("Spawn Angle", sim.spawnAngle, 0.1f, 2);
-            ImGui.sliderFloat("Angle Period", sim.anglePeriod, 0.1f, 10);
+            ImGui.sliderFloat("Spawn Angle", sim.spawnAngle, 0.1f, 3.142f);
+            ImGui.sliderFloat("Angle Period", sim.anglePeriod, 0.1f, 5);
             if (ImGui.smallButton("Reset##3")) sim.resetSpawner();
 
         }
@@ -81,6 +103,15 @@ public class Gui {
             ImGui.sliderInt("Min Size", sim.minSize, 1, sim.maxSize[0], 1);
             if (ImGui.sliderInt("Max Size", sim.maxSize, 2, sim.getUpperSize()))
                 if (sim.minSize[0] > sim.maxSize[0]) sim.minSize[0] = sim.maxSize[0] - 1;
+        }
+
+        if (ImGui.collapsingHeader("Mouse")) {
+            if (ImGui.smallButton((sim.mouseForce) ? "Force" : "Spawn")) sim.mouseForce = !sim.mouseForce;
+            ImGui.sameLine();
+            ImGui.text("Mouse Mode : Spawn / Force");
+            ImGui.sliderInt("Force Radius", sim.mouseRadius, 0, sim.getBoundRadius());
+            ImGui.sliderFloat("Mouse Force", sim.mouseStrength, -sim.getMaxStrength(), sim.getMaxStrength());
+
         }
 
         ImGui.end();

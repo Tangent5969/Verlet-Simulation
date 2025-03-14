@@ -3,16 +3,6 @@
 1000
 # World Height
 1000
-# Physics Sub-Steps
-8
-# Circle (true / false)
-true
-# Bound Centre X
-500
-# Bound Centre Y
-500
-# Bound Radius
-450
 # Max Force
 5000
 # Max Speed
