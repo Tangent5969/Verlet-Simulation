@@ -12,11 +12,13 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class Main extends ApplicationAdapter {
+
     private ShapeRenderer sr;
     private Camera camera;
     private FitViewport viewport;
     private SimulationConfig config;
     private Simulation sim;
+    private Gui gui;
 
     @Override
     public void create() {
@@ -26,6 +28,7 @@ public class Main extends ApplicationAdapter {
         viewport = new FitViewport(config.getWorldWidth(), config.getWorldHeight(), camera);
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
         sim = new Simulation(config);
+        gui = new Gui(sim);
     }
 
     @Override
@@ -48,11 +51,14 @@ public class Main extends ApplicationAdapter {
         sim.simulate(Gdx.graphics.getDeltaTime());
         sim.render(sr);
         sr.end();
+
+        gui.gui();
     }
 
     @Override
     public void dispose() {
         sr.dispose();
+        gui.disposeImGui();
     }
 
     @Override

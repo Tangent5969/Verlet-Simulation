@@ -14,16 +14,23 @@ public class SimulationConfig {
     private final float boundRadius;
     private final float boundX;
     private final float boundY;
-    private final float gravity;
-    private final float restitution;
     private final int subSteps;
     private final boolean circle;
-    private final int spawnDelay;
-    private final float spawnSpeed;
-    private final float spawnAngle;
-    private final float anglePeriod;
-    private final int minSize;
-    private final int maxSize;
+    private final float maxStrength;
+    private final float maxSpeed;
+    private final int upperSize;
+
+    private final float forceStrengthDefault;
+    private final float forceXDefault;
+    private final float forceYDefault;
+    private final float restitutionDefault;
+    private final int spawnDelayDefault;
+    private final float spawnSpeedDefault;
+    private final float spawnAngleDefault;
+    private final float anglePeriodDefault;
+    private final int minSizeDefault;
+    private final int maxSizeDefault;
+    private final float[] colourDefault;
 
     public SimulationConfig(String path) {
         try {
@@ -49,21 +56,34 @@ public class SimulationConfig {
             reader.readLine();
             this.boundRadius = Float.parseFloat(reader.readLine());
             reader.readLine();
-            this.gravity = Float.parseFloat(reader.readLine());
+            this.maxStrength = Float.parseFloat(reader.readLine());
             reader.readLine();
-            this.restitution = Float.parseFloat(reader.readLine());
+            this.maxSpeed = Float.parseFloat(reader.readLine());
             reader.readLine();
-            this.minSize = Integer.parseInt(reader.readLine());
+            this.upperSize = Integer.parseInt(reader.readLine());
             reader.readLine();
-            this.maxSize = Integer.parseInt(reader.readLine());
+            this.forceStrengthDefault = Float.parseFloat(reader.readLine());
             reader.readLine();
-            this.spawnDelay = Integer.parseInt(reader.readLine());
+            this.forceXDefault = Float.parseFloat(reader.readLine());
             reader.readLine();
-            this.spawnSpeed = Float.parseFloat(reader.readLine());
+            this.forceYDefault = Float.parseFloat(reader.readLine());
             reader.readLine();
-            this.spawnAngle = Float.parseFloat(reader.readLine());
+            this.restitutionDefault = Float.parseFloat(reader.readLine());
             reader.readLine();
-            this.anglePeriod = Float.parseFloat(reader.readLine());
+            this.spawnDelayDefault = Integer.parseInt(reader.readLine());
+            reader.readLine();
+            this.spawnSpeedDefault = Float.parseFloat(reader.readLine());
+            reader.readLine();
+            this.spawnAngleDefault = Float.parseFloat(reader.readLine());
+            reader.readLine();
+            this.anglePeriodDefault = Float.parseFloat(reader.readLine());
+            reader.readLine();
+            this.minSizeDefault = Integer.parseInt(reader.readLine());
+            reader.readLine();
+            this.maxSizeDefault = Integer.parseInt(reader.readLine());
+            reader.readLine();
+            String[] temp = reader.readLine().split(",");
+            this.colourDefault = new float[]{Float.parseFloat(temp[0]) / 255, Float.parseFloat(temp[1]) / 255, Float.parseFloat(temp[2]) / 255};
             reader.close();
 
         } catch (IOException e) {
@@ -91,14 +111,6 @@ public class SimulationConfig {
         return boundY;
     }
 
-    public float getGravity() {
-        return gravity;
-    }
-
-    public float getRestitution() {
-        return restitution;
-    }
-
     public int getSubSteps() {
         return subSteps;
     }
@@ -107,29 +119,59 @@ public class SimulationConfig {
         return circle;
     }
 
-    public int getSpawnDelay() {
-        return spawnDelay;
+    public float getMaxStrength() {
+        return maxStrength;
     }
 
-    public float getSpawnSpeed() {
-        return spawnSpeed;
+    public float getMaxSpeed() {
+        return maxSpeed;
     }
 
-    public float getSpawnAngle() {
-        return spawnAngle;
+    public int getUpperSize() {
+        return upperSize;
     }
 
-    public float getAnglePeriod() {
-        return anglePeriod;
+    public float getForceStrengthDefault() {
+        return forceStrengthDefault;
     }
 
-    public int getMinSize() {
-        return minSize;
+    public float getForceXDefault() {
+        return forceXDefault;
     }
 
-    public int getMaxSize() {
-        return maxSize;
+    public float getForceYDefault() {
+        return forceYDefault;
     }
 
+    public float getRestitutionDefault() {
+        return restitutionDefault;
+    }
 
+    public int getSpawnDelayDefault() {
+        return spawnDelayDefault;
+    }
+
+    public float getSpawnSpeedDefault() {
+        return spawnSpeedDefault;
+    }
+
+    public float getSpawnAngleDefault() {
+        return spawnAngleDefault;
+    }
+
+    public float getAnglePeriodDefault() {
+        return anglePeriodDefault;
+    }
+
+    public int getMinSizeDefault() {
+        return minSizeDefault;
+    }
+
+    public int getMaxSizeDefault() {
+        return maxSizeDefault;
+    }
+
+    public float[] getColourDefault() {
+        return colourDefault;
+    }
 }

@@ -13,19 +13,31 @@ true
 500
 # Bound Radius
 450
-# Gravity
--1000
-# Restitution
-0.25
-# Minimum Ball Size
-10
-# Maximum Ball Size
-25
-# Ball Spawn Delay (ms)
-50
-# Ball Spawn Speed
+# Max Force
+5000
+# Max Speed
 1000
-# Ball Spawn Angle
+# Max Size
+100
+# Force Strength Default
+1000
+# Force X Default
+0
+# Force Y Default
+-1
+# Restitution Default
+0.25
+# Spawn Delay Default
+50
+# Spawn Speed Default
+1000
+# Spawn Angle Default
 1.2
-# Ball Angle Period
+# Angle Period Default
 0.75
+# Min Size Default
+10
+# Max Size Default
+25
+# Colour Default (0 - 255 rgb)
+255,255,255

@@ -40,11 +40,11 @@ public class Particle {
         this.y += y;
     }
 
-    public void update(float gravity, float dt) {
+    public void update(float accX, float accY, float dt) {
         float tempX = x;
         float tempY = y;
-        x = 2 * x - prevX;
-        y = 2 * y - prevY + gravity * dt * dt;
+        x = 2 * x - prevX + accX * dt * dt;
+        y = 2 * y - prevY + accY * dt * dt;
         prevX = tempX;
         prevY = tempY;
     }

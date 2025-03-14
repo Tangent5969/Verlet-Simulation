@@ -10,40 +10,74 @@ public class Simulation {
     private final float boundRadius;
     private final float boundX;
     private final float boundY;
-    private final float gravity;
-    private final float restitution;
     private final int subSteps;
     private final boolean circle;
-    private final long spawnDelay;
-    private final float spawnSpeed;
-    private final float spawnAngle;
-    private final float anglePeriod;
-    private final int minSize;
-    private final int maxSize;
     private final Random rand;
+    private final float maxStrength;
+    private final float maxSpeed;
+    private final int upperSize;
+
+    private final float forceStrengthDefault;
+    private final float forceXDefault;
+    private final float forceYDefault;
+    private final float restitutionDefault;
+    private final int spawnDelayDefault;
+    private final float spawnSpeedDefault;
+    private final float spawnAngleDefault;
+    private final float anglePeriodDefault;
+    private final int minSizeDefault;
+    private final int maxSizeDefault;
+    private final float[] colourDefault;
+
+    public float[] forceStrength;
+    public float[] forceX;
+    public float[] forceY;
+    public float[] restitution;
+    public int[] spawnDelay;
+    public float[] spawnSpeed;
+    public float[] spawnAngle;
+    public float[] anglePeriod;
+    public int[] minSize;
+    public int[] maxSize;
+    public boolean spawner;
+    public boolean rainbow;
+    public float[] colour;
 
     private ArrayList<Particle> balls;
-    private boolean spawner;
     private float time;
     private long prevTime;
 
     public Simulation(SimulationConfig config) {
-        this.gravity = config.getGravity();
-        this.restitution = config.getRestitution();
         this.subSteps = config.getSubSteps();
         this.boundX = config.getBoundX();
         this.boundY = config.getBoundY();
         this.boundRadius = config.getBoundRadius();
         this.circle = config.isCircle();
-        this.spawnDelay = config.getSpawnDelay() * 1000000L;
-        this.spawnSpeed = config.getSpawnSpeed();
-        this.spawnAngle = config.getSpawnAngle();
-        this.anglePeriod = config.getAnglePeriod();
-        this.minSize = config.getMinSize();
-        this.maxSize = config.getMaxSize();
+        this.maxStrength = config.getMaxStrength();
+        this.maxSpeed = config.getMaxSpeed();
+        this.upperSize = config.getUpperSize();
         this.rand = new Random();
+
+        this.forceStrengthDefault = config.getForceStrengthDefault();
+        this.forceXDefault = config.getForceXDefault();
+        this.forceYDefault = config.getForceYDefault();
+        this.restitutionDefault = config.getRestitutionDefault();
+        this.spawnDelayDefault = config.getSpawnDelayDefault();
+        this.spawnSpeedDefault = config.getSpawnSpeedDefault();
+        this.spawnAngleDefault = config.getSpawnAngleDefault();
+        this.anglePeriodDefault = config.getAnglePeriodDefault();
+        this.minSizeDefault = config.getMinSizeDefault();
+        this.maxSizeDefault = config.getMaxSizeDefault();
+        this.colourDefault = config.getColourDefault();
+
+        resetForces();
+        resetSpawner();
+        this.minSize = new int[]{minSizeDefault};
+        this.maxSize = new int[]{maxSizeDefault};
+
+        this.rainbow = true;
+        this.colour = colourDefault;
         this.balls = new ArrayList<>();
-        this.spawner = false;
         this.time = 0;
         this.prevTime = 0;
     }
@@ -61,13 +95,13 @@ public class Simulation {
                 return;
             }
         }
-        balls.add(new Particle(x, y, rand.nextInt(minSize, maxSize), getColour(time)));
+        balls.add(new Particle(x, y, (minSize[0] == maxSize[0]) ? minSize[0] : rand.nextInt(minSize[0], maxSize[0]), getColour(time)));
     }
 
     public void simulate(float dt) {
         time += dt;
         for (int i = 0; i < subSteps; i++) {
-            update(gravity, dt / subSteps);
+            update(forceX[0] * forceStrength[0], forceY[0] * forceStrength[0], dt / subSteps);
             collisions();
             bounds();
 
@@ -75,9 +109,9 @@ public class Simulation {
         if (spawner) spawnBall(dt / subSteps);
     }
 
-    private void update(float gravity, float dt) {
+    private void update(float accX, float accY, float dt) {
         for (Particle ball : balls) {
-            ball.update(gravity, dt);
+            ball.update(accX, accY, dt);
         }
     }
 
@@ -90,7 +124,7 @@ public class Simulation {
                 float minDist = balls.get(i).getRadius() + balls.get(j).getRadius();
                 if (dist < minDist * minDist) {
                     dist = (float) Math.sqrt(dist);
-                    float diff = restitution * (dist - minDist);
+                    float diff = restitution[0] * (dist - minDist);
                     balls.get(i).changePos(-(dx / dist) * diff, -(dy / dist) * diff);
                     balls.get(j).changePos((dx / dist) * diff, (dy / dist) * diff);
                 }
@@ -129,7 +163,8 @@ public class Simulation {
         for (Particle ball : balls) ball.render(sr);
     }
 
-    public static Color getColour(float t) {
+    private Color getColour(float t) {
+        if (!rainbow) return new Color(colour[0], colour[1], colour[2], 1);
         float r = (float) Math.sin(t);
         float g = (float) Math.sin(t + 0.66f * Math.PI);
         float b = (float) Math.sin(t + 1.32f * Math.PI);
@@ -145,12 +180,43 @@ public class Simulation {
     }
 
     private void spawnBall(float dt) {
-        if (System.nanoTime() < prevTime + spawnDelay) return;
+        if (System.nanoTime() < prevTime + spawnDelay[0] * 1000000L) return;
         prevTime = System.nanoTime();
 
-        float angle = (float) (spawnAngle * Math.sin(anglePeriod * time) + 0.5 * Math.PI);
-        float vx = (float) (Math.cos(angle) * spawnSpeed * dt);
-        float vy = (float) (Math.sin(angle) * spawnSpeed * dt);
-        balls.add(new Particle(boundX, boundY + boundRadius * 2 / 3, vx, vy, rand.nextInt(minSize, maxSize), getColour(time)));
+        float angle = (float) (spawnAngle[0] * Math.sin(anglePeriod[0] * time) + 0.5 * Math.PI);
+        float vx = (float) (Math.cos(angle) * spawnSpeed[0] * dt);
+        float vy = (float) (Math.sin(angle) * spawnSpeed[0] * dt);
+        balls.add(new Particle(boundX, boundY + boundRadius * 2 / 3, vx, vy, (minSize[0] == maxSize[0]) ? minSize[0] : rand.nextInt(minSize[0], maxSize[0]), getColour(time)));
+    }
+
+    public void resetForces() {
+        this.forceStrength = new float[]{forceStrengthDefault};
+        this.forceX = new float[]{forceXDefault};
+        this.forceY = new float[]{forceYDefault};
+        this.restitution = new float[]{restitutionDefault};
+    }
+
+    public void resetSpawner() {
+        this.spawnDelay = new int[]{spawnDelayDefault};
+        this.spawnSpeed = new float[]{spawnSpeedDefault};
+        this.spawnAngle = new float[]{spawnAngleDefault};
+        this.anglePeriod = new float[]{anglePeriodDefault};
+        this.spawner = false;
+    }
+
+    public float getMaxStrength() {
+        return maxStrength;
+    }
+
+    public float getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public int getUpperSize() {
+        return upperSize;
+    }
+
+    public int getSize() {
+        return balls.size();
     }
 }
