@@ -81,7 +81,6 @@ public class Simulation {
         this.upperSize = config.getUpperSize();
         this.rand = new Random();
 
-
         this.subSteps = 8;
         this.boundX = (int) (maxWidth / 2);
         this.boundY = (int) (maxHeight / 2);
@@ -112,7 +111,7 @@ public class Simulation {
         resetSpawner();
         this.minSize = new int[]{minSizeDefault};
         this.maxSize = new int[]{maxSizeDefault};
-        this.ballRadius = new int[]{(minSize[0] + maxSize[0]) / 2};
+        this.ballRadius = new int[]{(minSizeDefault + maxSizeDefault) / 2};
         this.randomSize = false;
 
         this.rainbow = true;
@@ -121,6 +120,28 @@ public class Simulation {
         this.links = new ArrayList<>();
         this.time = 0;
         this.prevTime = 0;
+    }
+
+    public void resetBalls() {
+        balls.clear();
+        links.clear();
+    }
+
+    public void resetForces() {
+        this.forceStrength = new float[]{forceStrengthDefault};
+        this.forceX = new float[]{forceXDefault};
+        this.forceY = new float[]{forceYDefault};
+        this.restitution = new float[]{restitutionDefault};
+    }
+
+    public void resetSpawner() {
+        this.spawnerX = boundX;
+        this.spawnerY = boundY + boundRadius * 2 / 3;
+        this.spawnDelay = new int[]{spawnDelayDefault};
+        this.spawnSpeed = new float[]{spawnSpeedDefault};
+        this.spawnAngle = new float[]{spawnAngleDefault};
+        this.anglePeriod = new float[]{anglePeriodDefault};
+        this.spawner = false;
     }
 
     public void addObject(float x, float y) {
@@ -148,9 +169,12 @@ public class Simulation {
             return;
         }
         if (state == 0) {
+            // clicked
             chainStart = new float[]{x, y};
         } else if (state == 1) {
+            // dragged
             if (chainStart == null) return;
+
             float dx = x - chainStart[0];
             float dy = y - chainStart[1];
             float dist = (float) Math.sqrt(dx * dx + dy * dy);
@@ -166,19 +190,22 @@ public class Simulation {
             }
 
         } else {
+            // let go
             if (tempChain == null || tempChain.length < 2) return;
-            Particle[] tempBalls = new Particle[tempChain.length];
-            tempBalls[0] = new Particle(chainStart[0], chainStart[1], chainRadius[0], spawnLocked, getColour(time));
-            for (int i = 1; i < tempChain.length - 1; i++) {
-                tempBalls[i] = new Particle(tempChain[i][0], tempChain[i][1], chainRadius[0], false, getColour(time));
-            }
-            tempBalls[tempChain.length - 1] = new Particle(tempChain[tempChain.length - 1][0], tempChain[tempChain.length - 1][1], chainRadius[0], spawnLocked2, getColour(time));
 
-            for (int i = 0; i < tempChain.length - 1; i++) {
-                balls.add(tempBalls[i]);
-                links.add(new Link(tempBalls[i], tempBalls[i + 1], chainRadius[0] * 2f));
+            Particle temp = new Particle(chainStart[0], chainStart[1], chainRadius[0], spawnLocked, getColour(time));
+            Particle temp2;
+            for (int i = 1; i < tempChain.length - 1; i++) {
+                temp2 = new Particle(tempChain[i][0], tempChain[i][1], chainRadius[0], false, getColour(time));
+                balls.add(temp);
+                links.add(new Link(temp, temp2, chainRadius[0] * 2f));
+                temp = temp2;
             }
-            balls.add(tempBalls[tempChain.length - 1]);
+            temp2 = new Particle(tempChain[tempChain.length - 1][0], tempChain[tempChain.length - 1][1], chainRadius[0], spawnLocked2, getColour(time));
+            balls.add(temp);
+            balls.add(temp2);
+            links.add(new Link(temp, temp2, chainRadius[0] * 2f));
+
             tempChain = null;
         }
 
@@ -264,6 +291,16 @@ public class Simulation {
         }
     }
 
+    private void spawnBall(float dt) {
+        if (System.nanoTime() < prevTime + spawnDelay[0] * 1000000L) return;
+        prevTime = System.nanoTime();
+
+        float angle = (float) (spawnAngle[0] * Math.sin(anglePeriod[0] * time) + 0.5 * Math.PI);
+        float vx = (float) (Math.cos(angle) * spawnSpeed[0] * dt);
+        float vy = (float) (-Math.sin(angle) * spawnSpeed[0] * dt);
+        balls.add(new Particle(spawnerX, spawnerY, vx, vy, getBallSize(), false, getColour(time)));
+    }
+
     public void render(ShapeRenderer sr) {
         sr.setColor(Color.BLACK);
         if (circle) sr.circle(boundX, boundY, boundRadius);
@@ -288,38 +325,6 @@ public class Simulation {
             return (minSize[0] == maxSize[0]) ? minSize[0] : rand.nextInt(minSize[0], maxSize[0]);
         }
         return ballRadius[0];
-    }
-
-    public void resetBalls() {
-        balls.clear();
-        links.clear();
-    }
-
-    private void spawnBall(float dt) {
-        if (System.nanoTime() < prevTime + spawnDelay[0] * 1000000L) return;
-        prevTime = System.nanoTime();
-
-        float angle = (float) (spawnAngle[0] * Math.sin(anglePeriod[0] * time) + 0.5 * Math.PI);
-        float vx = (float) (Math.cos(angle) * spawnSpeed[0] * dt);
-        float vy = (float) (-Math.sin(angle) * spawnSpeed[0] * dt);
-        balls.add(new Particle(spawnerX, spawnerY, vx, vy, getBallSize(), false, getColour(time)));
-    }
-
-    public void resetForces() {
-        this.forceStrength = new float[]{forceStrengthDefault};
-        this.forceX = new float[]{forceXDefault};
-        this.forceY = new float[]{forceYDefault};
-        this.restitution = new float[]{restitutionDefault};
-    }
-
-    public void resetSpawner() {
-        this.spawnerX = boundX;
-        this.spawnerY = boundY + boundRadius * 2 / 3;
-        this.spawnDelay = new int[]{spawnDelayDefault};
-        this.spawnSpeed = new float[]{spawnSpeedDefault};
-        this.spawnAngle = new float[]{spawnAngleDefault};
-        this.anglePeriod = new float[]{anglePeriodDefault};
-        this.spawner = false;
     }
 
     public float getMaxStrength() {

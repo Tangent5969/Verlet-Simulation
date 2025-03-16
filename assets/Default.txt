@@ -7,7 +7,7 @@
 5000
 # Max Speed
 5000
-# Max Size
+# Max Ball Size
 100
 # Force Strength Default
 1000
@@ -30,6 +30,6 @@
 # Max Size Default
 25
 # Chain Radius Default
-20
+5
 # Colour Default (0 - 255 rgb)
 255,255,255
