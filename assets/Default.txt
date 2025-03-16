@@ -6,7 +6,7 @@
 # Max Force
 5000
 # Max Speed
-1000
+5000
 # Max Size
 100
 # Force Strength Default
@@ -29,5 +29,7 @@
 10
 # Max Size Default
 25
+# Chain Radius Default
+20
 # Colour Default (0 - 255 rgb)
 255,255,255

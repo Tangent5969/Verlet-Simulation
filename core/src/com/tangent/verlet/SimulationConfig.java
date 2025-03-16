@@ -24,6 +24,7 @@ public class SimulationConfig {
     private final float anglePeriodDefault;
     private final int minSizeDefault;
     private final int maxSizeDefault;
+    private final int chainRadiusDefault;
     private final float[] colourDefault;
 
     public SimulationConfig(String path) {
@@ -65,6 +66,8 @@ public class SimulationConfig {
             this.minSizeDefault = Integer.parseInt(reader.readLine());
             reader.readLine();
             this.maxSizeDefault = Integer.parseInt(reader.readLine());
+            reader.readLine();
+            this.chainRadiusDefault = Integer.parseInt(reader.readLine());
             reader.readLine();
             String[] temp = reader.readLine().split(",");
             this.colourDefault = new float[]{Float.parseFloat(temp[0]) / 255, Float.parseFloat(temp[1]) / 255, Float.parseFloat(temp[2]) / 255};
@@ -133,6 +136,10 @@ public class SimulationConfig {
 
     public int getMaxSizeDefault() {
         return maxSizeDefault;
+    }
+
+    public int getChainRadiusDefault() {
+        return chainRadiusDefault;
     }
 
     public float[] getColourDefault() {

@@ -60,8 +60,7 @@ public class Gui {
             ImGui.text(sim.getSize() + " balls");
             ImInt steps = new ImInt(sim.getSubSteps());
             if (ImGui.inputInt("Sub Steps", steps)) sim.setSubSteps(steps.get());
-            if (ImGui.smallButton("Reset Balls##1")) sim.reset();
-
+            if (ImGui.smallButton("Reset Balls##1")) sim.resetBalls();
         }
 
 
@@ -72,7 +71,7 @@ public class Gui {
             if (ImGui.inputInt("Centre X", boundX)) sim.setBoundX(boundX.get());
             if (ImGui.inputInt("Centre Y", boundY)) sim.setBoundY(boundY.get());
             if (ImGui.inputInt("Radius", radius)) sim.setBoundRadius(radius.get());
-            if (ImGui.smallButton((sim.circle) ? "Circle" : "Square")) sim.circle = !sim.circle;
+            if (ImGui.smallButton(sim.circle ? "Circle" : "Square")) sim.circle = !sim.circle;
             ImGui.sameLine();
             ImGui.text("World Shape : Circle / Square");
 
@@ -87,7 +86,11 @@ public class Gui {
         }
 
         if (ImGui.collapsingHeader("Spawner")) {
+            ImInt spawnX = new ImInt(sim.getSpawnerX());
+            ImInt spawnY = new ImInt(sim.getSpawnerY());
             if (ImGui.checkbox("Active", sim.spawner)) sim.spawner = !sim.spawner;
+            if (ImGui.inputInt("Spawner X", spawnX)) sim.setSpawnerX(spawnX.get());
+            if (ImGui.inputInt("Spawner Y", spawnY)) sim.setSpawnerY(spawnY.get());
             ImGui.sliderInt("Spawn Delay", sim.spawnDelay, 10, 1000);
             ImGui.sliderFloat("Spawn Speed", sim.spawnSpeed, 0, sim.getMaxSpeed());
             ImGui.sliderFloat("Spawn Angle", sim.spawnAngle, 0.1f, 3.142f);
@@ -98,20 +101,36 @@ public class Gui {
 
         if (ImGui.collapsingHeader("Balls")) {
             if (ImGui.checkbox("Rainbow", sim.rainbow)) sim.rainbow = !sim.rainbow;
+            ImGui.sameLine();
+            if (ImGui.checkbox("Random Size", sim.randomSize)) sim.randomSize = !sim.randomSize;
             ImGui.colorEdit3("colour", sim.colour);
-
-            ImGui.sliderInt("Min Size", sim.minSize, 1, sim.maxSize[0], 1);
-            if (ImGui.sliderInt("Max Size", sim.maxSize, 2, sim.getUpperSize()))
-                if (sim.minSize[0] > sim.maxSize[0]) sim.minSize[0] = sim.maxSize[0] - 1;
+            if (sim.randomSize) {
+                ImGui.sliderInt("Min Size", sim.minSize, 1, sim.maxSize[0], 1);
+                if (ImGui.sliderInt("Max Size", sim.maxSize, 2, sim.getUpperSize()))
+                    if (sim.minSize[0] > sim.maxSize[0]) sim.minSize[0] = sim.maxSize[0] - 1;
+            } else ImGui.sliderInt("Ball Size", sim.ballRadius, 1, sim.getUpperSize());
         }
 
         if (ImGui.collapsingHeader("Mouse")) {
-            if (ImGui.smallButton((sim.mouseForce) ? "Force" : "Spawn")) sim.mouseForce = !sim.mouseForce;
+            if (ImGui.smallButton(sim.mouseForce ? "Force" : "Spawn")) sim.mouseForce = !sim.mouseForce;
             ImGui.sameLine();
             ImGui.text("Mouse Mode : Spawn / Force");
-            ImGui.sliderInt("Force Radius", sim.mouseRadius, 0, sim.getBoundRadius());
-            ImGui.sliderFloat("Mouse Force", sim.mouseStrength, -sim.getMaxStrength(), sim.getMaxStrength());
+            if (sim.mouseForce) {
+                ImGui.sliderInt("Force Radius", sim.mouseRadius, 0, sim.getBoundRadius());
+                ImGui.sliderFloat("Mouse Force", sim.mouseStrength, -sim.getMaxStrength(), sim.getMaxStrength());
+            } else {
+                if (ImGui.smallButton(sim.getSpawnObject())) sim.cycleMouseSpawn();
+                ImGui.sameLine();
+                ImGui.text("Spawn Object : Ball / Chain");
 
+                if (ImGui.checkbox((sim.getSpawnObject().equals("Ball")) ? "Stationary" : "Point 1 Stationary", sim.spawnLocked))
+                    sim.spawnLocked = !sim.spawnLocked;
+                if (sim.getSpawnObject().equals("Chain")) {
+                    ImGui.sameLine();
+                    if (ImGui.checkbox("Point 2 Stationary", sim.spawnLocked2)) sim.spawnLocked2 = !sim.spawnLocked2;
+                    ImGui.sliderInt("Chain Radius", sim.chainRadius, 1, sim.getUpperSize());
+                }
+            }
         }
 
         ImGui.end();
