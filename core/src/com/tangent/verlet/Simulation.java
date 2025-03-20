@@ -156,7 +156,7 @@ public class Simulation {
             float dx = boundX - x;
             float dy = boundY - y;
             float dist = (float) Math.sqrt(dx * dx + dy * dy);
-            return (dist > boundRadius);
+            return (dist < boundRadius);
         } else {
             return (x > boundX - boundRadius) && (x < boundX + boundRadius) && (y > boundY - boundRadius) && (y < boundY + boundRadius);
         }
