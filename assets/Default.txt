@@ -3,6 +3,8 @@
 1000
 # World Height
 1000
+# Fixed Ball Size (locks ball size to default, increasing performance) (true / false)
+false
 # Max Force
 5000
 # Max Speed
@@ -25,11 +27,11 @@
 1.2
 # Angle Period Default
 0.75
-# Min Size Default
+# Ball Size Default
 10
-# Max Size Default
-25
-# Chain Radius Default
+# Min Size Default
 5
+# Max Size Default
+15
 # Colour Default (0 - 255 rgb)
 255,255,255

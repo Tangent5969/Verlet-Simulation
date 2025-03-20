@@ -11,6 +11,7 @@ import java.io.IOException;
 public class SimulationConfig {
     private final float worldWidth;
     private final float worldHeight;
+    private final boolean fixedSize;
     private final float maxStrength;
     private final float maxSpeed;
     private final int upperSize;
@@ -22,9 +23,9 @@ public class SimulationConfig {
     private final float spawnSpeedDefault;
     private final float spawnAngleDefault;
     private final float anglePeriodDefault;
+    private final int ballSizeDefault;
     private final int minSizeDefault;
     private final int maxSizeDefault;
-    private final int chainRadiusDefault;
     private final float[] colourDefault;
 
     public SimulationConfig(String path) {
@@ -40,6 +41,8 @@ public class SimulationConfig {
             this.worldWidth = Float.parseFloat(reader.readLine());
             reader.readLine();
             this.worldHeight = Float.parseFloat(reader.readLine());
+            reader.readLine();
+            this.fixedSize = Boolean.parseBoolean(reader.readLine());
             reader.readLine();
             this.maxStrength = Float.parseFloat(reader.readLine());
             reader.readLine();
@@ -63,11 +66,11 @@ public class SimulationConfig {
             reader.readLine();
             this.anglePeriodDefault = Float.parseFloat(reader.readLine());
             reader.readLine();
+            this.ballSizeDefault = Integer.parseInt(reader.readLine());
+            reader.readLine();
             this.minSizeDefault = Integer.parseInt(reader.readLine());
             reader.readLine();
             this.maxSizeDefault = Integer.parseInt(reader.readLine());
-            reader.readLine();
-            this.chainRadiusDefault = Integer.parseInt(reader.readLine());
             reader.readLine();
             String[] temp = reader.readLine().split(",");
             this.colourDefault = new float[]{Float.parseFloat(temp[0]) / 255, Float.parseFloat(temp[1]) / 255, Float.parseFloat(temp[2]) / 255};
@@ -84,6 +87,10 @@ public class SimulationConfig {
 
     public float getWorldHeight() {
         return worldHeight;
+    }
+
+    public boolean isFixedSize() {
+        return fixedSize;
     }
 
     public float getMaxStrength() {
@@ -130,16 +137,16 @@ public class SimulationConfig {
         return anglePeriodDefault;
     }
 
+    public int getBallSizeDefault() {
+        return ballSizeDefault;
+    }
+
     public int getMinSizeDefault() {
         return minSizeDefault;
     }
 
     public int getMaxSizeDefault() {
         return maxSizeDefault;
-    }
-
-    public int getChainRadiusDefault() {
-        return chainRadiusDefault;
     }
 
     public float[] getColourDefault() {

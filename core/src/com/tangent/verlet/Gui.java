@@ -12,7 +12,6 @@ import imgui.glfw.ImGuiImplGlfw;
 import imgui.type.ImInt;
 import org.lwjgl.glfw.GLFW;
 
-
 public class Gui {
     private ImGuiImplGlfw imGuiGlfw;
     private ImGuiImplGl3 imGuiGl3;
@@ -58,6 +57,7 @@ public class Gui {
             ImGui.text(Gdx.graphics.getFramesPerSecond() + " fps");
             ImGui.text(String.format("%.2f", Gdx.graphics.getDeltaTime() * 1000) + " ms");
             ImGui.text(sim.getSize() + " balls");
+            if (sim.isFixedSize()) ImGui.text("Fixed Radius : " + sim.ballRadius[0]);
             ImInt steps = new ImInt(sim.getSubSteps());
             if (ImGui.inputInt("Sub Steps", steps)) sim.setSubSteps(steps.get());
             if (ImGui.smallButton("Reset Balls##1")) sim.resetBalls();
@@ -101,14 +101,18 @@ public class Gui {
 
         if (ImGui.collapsingHeader("Balls")) {
             if (ImGui.checkbox("Rainbow", sim.rainbow)) sim.rainbow = !sim.rainbow;
-            ImGui.sameLine();
-            if (ImGui.checkbox("Random Size", sim.randomSize)) sim.randomSize = !sim.randomSize;
-            ImGui.colorEdit3("colour", sim.colour);
-            if (sim.randomSize) {
-                ImGui.sliderInt("Min Size", sim.minSize, 1, sim.maxSize[0], 1);
-                if (ImGui.sliderInt("Max Size", sim.maxSize, 2, sim.getUpperSize()))
-                    if (sim.minSize[0] > sim.maxSize[0]) sim.minSize[0] = sim.maxSize[0] - 1;
-            } else ImGui.sliderInt("Ball Size", sim.ballRadius, 1, sim.getUpperSize());
+            if (sim.isFixedSize()) {
+                ImGui.text("Fixed Radius : " + sim.ballRadius[0]);
+            } else {
+                ImGui.sameLine();
+                if (ImGui.checkbox("Random Size", sim.randomSize)) sim.randomSize = !sim.randomSize;
+                ImGui.colorEdit3("colour", sim.colour);
+                if (sim.randomSize) {
+                    ImGui.sliderInt("Min Size", sim.minSize, 1, sim.maxSize[0], 1);
+                    if (ImGui.sliderInt("Max Size", sim.maxSize, 2, sim.getUpperSize()))
+                        if (sim.minSize[0] > sim.maxSize[0]) sim.minSize[0] = sim.maxSize[0] - 1;
+                } else ImGui.sliderInt("Ball Size", sim.ballRadius, 1, sim.getUpperSize());
+            }
         }
 
         if (ImGui.collapsingHeader("Mouse")) {
@@ -122,13 +126,14 @@ public class Gui {
                 if (ImGui.smallButton(sim.getSpawnObject())) sim.cycleMouseSpawn();
                 ImGui.sameLine();
                 ImGui.text("Spawn Object : Ball / Chain");
-
                 if (ImGui.checkbox((sim.getSpawnObject().equals("Ball")) ? "Stationary" : "Point 1 Stationary", sim.spawnLocked))
                     sim.spawnLocked = !sim.spawnLocked;
                 if (sim.getSpawnObject().equals("Chain")) {
                     ImGui.sameLine();
                     if (ImGui.checkbox("Point 2 Stationary", sim.spawnLocked2)) sim.spawnLocked2 = !sim.spawnLocked2;
-                    ImGui.sliderInt("Chain Radius", sim.chainRadius, 1, sim.getUpperSize());
+                    if (!sim.isFixedSize()) {
+                        ImGui.sliderInt("Chain Radius", sim.chainRadius, 1, sim.getUpperSize());
+                    }
                 }
             }
         }

@@ -15,6 +15,7 @@ public class Simulation {
 
     private final float maxWidth;
     private final float maxHeight;
+    private final boolean fixedSize;
 
     private final Random rand;
     private final float maxStrength;
@@ -76,6 +77,7 @@ public class Simulation {
     public Simulation(SimulationConfig config) {
         this.maxWidth = config.getWorldWidth();
         this.maxHeight = config.getWorldHeight();
+        this.fixedSize = config.isFixedSize();
         this.maxStrength = config.getMaxStrength();
         this.maxSpeed = config.getMaxSpeed();
         this.upperSize = config.getUpperSize();
@@ -93,8 +95,7 @@ public class Simulation {
         this.spawnObject = SpawnObjectType.Ball;
         this.spawnLocked = false;
         this.spawnLocked2 = false;
-        this.chainRadius = new int[]{config.getChainRadiusDefault()};
-
+        this.chainRadius = new int[]{config.getBallSizeDefault()};
         this.forceStrengthDefault = config.getForceStrengthDefault();
         this.forceXDefault = config.getForceXDefault();
         this.forceYDefault = config.getForceYDefault();
@@ -111,7 +112,7 @@ public class Simulation {
         resetSpawner();
         this.minSize = new int[]{minSizeDefault};
         this.maxSize = new int[]{maxSizeDefault};
-        this.ballRadius = new int[]{(minSizeDefault + maxSizeDefault) / 2};
+        this.ballRadius = new int[]{(config.getBallSizeDefault())};
         this.randomSize = false;
 
         this.rainbow = true;
@@ -211,7 +212,6 @@ public class Simulation {
 
             tempChain = null;
         }
-
     }
 
     public void simulate(float mouseX, float mouseY, float dt) {
@@ -219,7 +219,8 @@ public class Simulation {
         for (int i = 0; i < subSteps; i++) {
             update(mouseX, mouseY, dt / subSteps);
             updateLinks();
-            collisions();
+            if (fixedSize) collisionsFixed();
+            else collisions();
             bounds();
         }
         if (spawner) spawnBall(dt / subSteps);
@@ -249,22 +250,57 @@ public class Simulation {
             link.update();
     }
 
+    private void collide(Particle ball1, Particle ball2) {
+        float dx = ball1.getX() - ball2.getX();
+        float dy = ball1.getY() - ball2.getY();
+        float dist = dx * dx + dy * dy;
+        float minDist = ball1.getRadius() + ball2.getRadius();
+        if (dist < minDist * minDist) {
+            dist = (float) Math.sqrt(dist);
+            float diff = restitution[0] * (dist - minDist);
+            float ratio1 = (float) ball1.getRadius() / (ball1.getRadius() + ball2.getRadius());
+            float ratio2 = (float) ball2.getRadius() / (ball1.getRadius() + ball2.getRadius());
+            dx /= dist;
+            dy /= dist;
+            ball1.changePos(-dx * diff * ratio2, -dy * diff * ratio2);
+            ball2.changePos(dx * diff * ratio1, dy * diff * ratio1);
+        }
+    }
+
     private void collisions() {
         for (int i = 0; i < balls.size(); i++) {
             for (int j = i + 1; j < balls.size(); j++) {
-                float dx = balls.get(i).getX() - balls.get(j).getX();
-                float dy = balls.get(i).getY() - balls.get(j).getY();
-                float dist = dx * dx + dy * dy;
-                float minDist = balls.get(i).getRadius() + balls.get(j).getRadius();
-                if (dist < minDist * minDist) {
-                    dist = (float) Math.sqrt(dist);
-                    float diff = restitution[0] * (dist - minDist);
-                    float ratio1 = (float) balls.get(i).getRadius() / (balls.get(i).getRadius() + balls.get(j).getRadius());
-                    float ratio2 = (float) balls.get(j).getRadius() / (balls.get(i).getRadius() + balls.get(j).getRadius());
-                    dx /= dist;
-                    dy /= dist;
-                    balls.get(i).changePos(-dx * diff * ratio2, -dy * diff * ratio2);
-                    balls.get(j).changePos(dx * diff * ratio1, dy * diff * ratio1);
+                collide(balls.get(i), balls.get(j));
+            }
+        }
+    }
+
+    private void collisionsFixed() {
+        final float cellSize = ballRadius[0] * 2f;
+        final int cellCount = (int) (Math.min(maxWidth, maxHeight) / cellSize);
+        ArrayList<Particle>[][] grid = new ArrayList[cellCount][cellCount];
+        for (int x = 0; x < cellCount; x++) {
+            for (int y = 0; y < cellCount; y++) {
+                grid[x][y] = new ArrayList<>();
+            }
+        }
+        for (Particle ball : balls) {
+            if (inBounds(ball.getX(), ball.getY())) grid[(int) (ball.getX() / cellSize)][(int) (ball.getY() / cellSize)].add(ball);
+        }
+
+        for (int x = 1; x < cellCount - 1; x++) {
+            for (int y = 1; y < cellCount - 1; y++) {
+                ArrayList<Particle> cell = grid[x][y];
+                for (int dx = -1; dx < 2; dx++) {
+                    for (int dy = -1; dy < 2; dy++) {
+                        ArrayList<Particle> cell2 = grid[x + dx][y + dy];
+                        for (Particle ball1 : cell) {
+                            for (Particle ball2 : cell2) {
+                                if (ball1 == ball2) continue;
+                                collide(ball1, ball2);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -328,6 +364,10 @@ public class Simulation {
             return (minSize[0] == maxSize[0]) ? minSize[0] : rand.nextInt(minSize[0], maxSize[0]);
         }
         return ballRadius[0];
+    }
+
+    public boolean isFixedSize() {
+        return fixedSize;
     }
 
     public float getMaxStrength() {
