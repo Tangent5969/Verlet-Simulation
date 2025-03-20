@@ -8,6 +8,8 @@ Uses ImGui for an extensive settings panel.
 
 * Real-time 2D particle physics.
 
+* Optional fixed size mode for increased performance.
+
 * Extensive settings panel and config file.
 
 * Single particles and chains.
